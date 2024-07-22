@@ -157,7 +157,7 @@ function App() {
               className="form-control mb-2"
               placeholder="Player Name"
               value={playerName}
-              onChange={(e) => setPlayerName(e.target.value || 'Player 1')}
+              onChange={(e) => setPlayerName(e.target.value)}
             />
           </div>
         </div>
