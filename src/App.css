@@ -1,38 +1,111 @@
-.App {
-  text-align: center;
+/* Background style for the whole page */
+body {
+  background-color: #f8f9fa; /* Light grey background color */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Container for player name input fields */
+.input-container {
   display: flex;
   flex-direction: column;
+  justify-content: center; /* Center content vertically */
+  height: 100%; /* Take full height of the column */
+}
+
+/* Style for input fields */
+.input-container input {
+  margin-bottom: 1rem; /* Space between input fields */
+}
+
+/* Game board layout */
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px); /* Fixed width for columns */
+  grid-template-rows: repeat(3, 100px); /* Fixed height for rows */
+  gap: 2px; /* 2px gap between tiles */
+  margin: 0 auto;
+  max-width: 308px; /* Adjusted to account for gaps */
+}
+
+/* Square styles */
+.square {
+  width: 100px; /* Fixed width */
+  height: 100px; /* Fixed height */
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  font-size: 24px;
+  background-color: #f8f9fa; /* Light background */
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s ease; /* Smooth transition for background color change */
+  box-sizing: border-box; /* Ensure border is included in the size */
 }
 
-.App-link {
-  color: #61dafb;
+/* Remove hover effect colors */
+.square:hover {
+  background-color: #f8f9fa !important; /* Ensure no change on hover */
+  color: inherit !important; /* Ensure text color does not change */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Styles for selected squares */
+.square.selected {
+  background-color: #f8f9fa; /* Background color for selected squares */
+  color: inherit; /* Ensure text color remains */
+}
+
+/* Highlight winning squares with breathing effect */
+.square.winning {
+  animation: breathe 1.5s infinite; /* Breathing animation */
+}
+
+/* Keyframes for breathing effect */
+@keyframes breathe {
+  0% {
+    background-color: #d4edda; /* Light green background */
   }
-  to {
-    transform: rotate(360deg);
+  50% {
+    background-color: #c3e6cb; /* Slightly darker green */
   }
+  100% {
+    background-color: #d4edda; /* Light green background */
+  }
+}
+
+/* Styles for blurred game board */
+.game-board.blur {
+  filter: blur(5px); /* Apply blur effect */
+  pointer-events: none; /* Prevent interaction with the game board */
+}
+
+/* Popup styles */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Ensure popup appears above other content */
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out; /* Transition for fade-in and fade-out effects */
+}
+
+.popup-overlay.fade-in {
+  opacity: 1;
+}
+
+.popup-overlay.fade-out {
+  opacity: 0;
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  font-size: 24px;
 }
