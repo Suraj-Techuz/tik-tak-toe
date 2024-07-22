@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { Helmet } from 'react-helmet';
 
 const initialBoard = Array(9).fill(null);
 
@@ -22,8 +23,8 @@ function App() {
       setTimeout(() => {
         setTimeout(() => {
           setFadeClass('fade-out');
-        }, 5000); // Hide popup after 5 seconds
-        setTimeout(() => setShowPopup(false), 5500); // Hide popup after fade-out duration
+        }, 2000); // Hide popup after 5 seconds
+        setTimeout(() => setShowPopup(false), 2500); // Hide popup after fade-out duration
       }, 100); // Delay for fade-in effect
     }
   }, [showPopup]);
@@ -42,7 +43,7 @@ function App() {
       const winLine = getWinningLine(newBoard); // Get the winning line
       setWinningLine(winLine); // Set the winning line
       setWinner(currentWinner);
-      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? 'Bot' : playerName}! 🎉`);
+      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? playerName : 'Bot'}! 🎉`);
       setShowPopup(true);
       setFadeClass(''); // Reset fade class for new popup
     } else if (isBoardFull(newBoard)) {
@@ -148,6 +149,12 @@ function App() {
 
   return (
     <div className="container mt-5">
+      <Helmet>
+        <title>Tic-Tac-Toe Game</title>
+        <meta name="description" content="Play Tic-Tac-Toe with a bot in this classic game!" />
+        <meta property="og:title" content="Tic-Tac-Toe Game" />
+        <meta property="og:description" content="Play Tic-Tac-Toe with a bot in this classic game!" />
+      </Helmet>
       <h1 className="text-center mb-4">Tic-Tac-Toe</h1>
       <div className="row justify-content-center mb-4">
         <div className="col-md-3">
@@ -155,7 +162,6 @@ function App() {
             <input
               type="text"
               className="form-control mb-2"
-              placeholder="Player Name"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
             />
