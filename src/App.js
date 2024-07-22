@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -22,19 +22,14 @@ function App() {
       setTimeout(() => {
         setTimeout(() => {
           setFadeClass('fade-out');
-        }, 2000); // Hide popup after 5 seconds
-        setTimeout(() => setShowPopup(false), 2500); // Hide popup after fade-out duration
+        }, 5000); // Hide popup after 5 seconds
+        setTimeout(() => setShowPopup(false), 5500); // Hide popup after fade-out duration
       }, 100); // Delay for fade-in effect
     }
   }, [showPopup]);
 
-  useEffect(() => {
-    if (gameStarted && !isXNext) {
-      botMove();
-    }
-  }, [isXNext, gameStarted]);
-
-  const handleClick = (index) => {
+  // Define handleClick and wrap it in useCallback
+  const handleClick = useCallback((index) => {
     if (!gameStarted || board[index] || winner) return;
     const newBoard = board.slice();
     newBoard[index] = isXNext ? 'X' : 'O';
@@ -47,9 +42,7 @@ function App() {
       const winLine = getWinningLine(newBoard); // Get the winning line
       setWinningLine(winLine); // Set the winning line
       setWinner(currentWinner);
-
-      // Set the correct congratulatory message
-      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? playerName : 'Bot'}! 🎉`);
+      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? 'Bot' : playerName}! 🎉`);
       setShowPopup(true);
       setFadeClass(''); // Reset fade class for new popup
     } else if (isBoardFull(newBoard)) {
@@ -59,20 +52,26 @@ function App() {
     } else {
       setIsXNext(!isXNext);
     }
-  };
+  }, [gameStarted, board, winner, isXNext, clickedIndices, playerName]);
 
-  const botMove = () => {
-    // Add a 1-second delay before the bot makes its move
-    setTimeout(() => {
-      const emptyIndices = board
-        .map((value, index) => (value === null ? index : null))
-        .filter(index => index !== null);
-      const randomIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-      if (randomIndex !== undefined) {
-        handleClick(randomIndex);
-      }
-    }, 1000);
-  };
+  const botMove = useCallback(() => {
+    const emptyIndices = board
+      .map((value, index) => (value === null ? index : null))
+      .filter(index => index !== null);
+    const randomIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    if (randomIndex !== undefined) {
+      handleClick(randomIndex);
+    }
+  }, [board, handleClick]); // Include handleClick in dependencies
+
+  useEffect(() => {
+    if (gameStarted && !isXNext) {
+      const timer = setTimeout(() => {
+        botMove();
+      }, 1000); // Delay for bot move
+      return () => clearTimeout(timer);
+    }
+  }, [isXNext, gameStarted, botMove]);
 
   const isBoardFull = (board) => {
     return board.every(square => square !== null);
@@ -130,12 +129,12 @@ function App() {
 
   const startGame = () => {
     setGameStarted(true);
-    setIsXNext(true); // Bot starts first
+    setIsXNext(false); // Bot starts first
   };
 
   const resetGame = () => {
     setBoard(initialBoard);
-    setIsXNext(true);
+    setIsXNext(false);
     setWinner(null);
     setShowPopup(false);
     setGameStarted(false);
@@ -158,7 +157,7 @@ function App() {
               className="form-control mb-2"
               placeholder="Player Name"
               value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
+              onChange={(e) => setPlayerName(e.target.value || 'Player 1')}
             />
           </div>
         </div>
