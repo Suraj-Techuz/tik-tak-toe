@@ -117,7 +117,7 @@ function App() {
       const winLine = getWinningLine(newBoard);
       setWinningLine(winLine);
       setWinner(currentWinner);
-      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? 'Player 1' : (gameMode === 'bot' ? 'Bot' : 'Player 2')}! 🎉`);
+      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? 'Player 1' : (gameMode === 'bot' ? 'Aryabhatta' : 'Player 2')}! 🎉`);
       setShowPopup(true);
       setFadeClass('');
     } else if (isBoardFull(newBoard)) {
@@ -181,11 +181,11 @@ function App() {
   };
 
   const status = winner
-    ? `Winner: ${winner === 'X' ? 'Player 1' : (gameMode === 'bot' ? 'Bot' : 'Player 2')}`
+    ? `Winner: ${winner === 'X' ? 'Player 1' : (gameMode === 'bot' ? 'Aryabhatta' : 'Player 2')}`
     : ``;
 
   return (
-    <div className="container mt-5">
+    <div className="mt-5">
       <Helmet>
         <title>Tic-Tac-Toe Game</title>
         <meta name="description" content="Play Tic-Tac-Toe with a bot or another player!" />
@@ -193,46 +193,59 @@ function App() {
         <meta property="og:description" content="Play Tic-Tac-Toe with a bot or another player!" />
       </Helmet>
       <div className="parent-div">
-        <h1 className="text-center mb-4">Tic-Tac-Toe</h1>
-        <div className="text-center mt-3">
-          <div className="input-container">
-            <select
-              className="form-control mb-2"
-              value={gameMode}
-              onChange={(e) => setGameMode(e.target.value)}
-              disabled={gameStarted}
-            >
-              <option value="bot">Play with Bot</option>
-              <option value="player">Play with Another Player</option>
-            </select>
+        <div className='container'>
+          <div className='row justify-content-center'>
+            <div className='col-md-6'>
+              <div className="text-center mt-3">
+                <div className="input-container">
+                  <select
+                    className="form-control mb-2"
+                    value={gameMode}
+                    onChange={(e) => setGameMode(e.target.value)}
+                    disabled={gameStarted}
+                  >
+                    <option value="bot">Play with Bot</option>
+                    <option value="player">Play with Another Player</option>
+                  </select>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="text-center mt-3">
-          <div className="text-center position-relative">
-            <div className={`game-board ${!gameStarted ? 'disabled' : ''} ${!gameStarted ? 'blur' : ''}`}>
+
+          <div className="col text-center d-flex flex-column align-items-center custom-bg" >
+            <h3>{gameMode === 'bot' ? 'Aryabhatta' : 'Player 2 (0)'}</h3>
+          </div>
+          <div className="col-auto d-flex justify-content-center align-items-center">
+            <div className={`game-board ${!gameStarted ? 'disabled blur' : ''}`}>
               {board.map((_, index) => renderSquare(index))}
             </div>
           </div>
-        </div>
-        <div className="text-center mt-3">
-          <h2>{status}</h2>
-          {gameStarted && (
-            <div className="button-container mt-3">
-              <button className="btn btn-secondary" onClick={resetGame}>Reset Game</button>
+          <div className="col text-center d-flex flex-column align-items-center custom-bg" >
+            <h3>{'Player 1 (X)'}</h3>
+          </div>
+
+
+          <div className='row justify-content-center mt-3'>
+            <div className='col text-center'>
+              <h2>{status}</h2>
+              <div className="d-flex justify-content-center mt-3">
+                {gameStarted ? (
+                  <button className="btn btn-secondary" onClick={resetGame}>Reset Game</button>
+                ) : (
+                  <button className="btn btn-primary" onClick={startGame}>Start Game</button>
+                )}
+              </div>
             </div>
-          )}
-          {!gameStarted && (
-            <div className="button-container mt-3">
-              <button className="btn btn-primary" onClick={startGame}>Start Game</button>
-            </div>
-          )}
+          </div>
         </div>
-        {showPopup && (
-          <div className={`popup ${fadeClass}`}>
+      </div>
+      {showPopup && (
+        <div className='alert-on-win'>
+          <div className={`popup ${fadeClass} d-flex justify-content-center`}>
             <p>{popupMessage}</p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
