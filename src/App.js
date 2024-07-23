@@ -2,7 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Helmet } from 'react-helmet';
+import axios from 'axios';
 
+const googleScriptURL = 'https://script.google.com/macros/s/AKfycbx138uaFNlLsJu6CJ5WGVNXC6P1mVqLj2ODT-GFauOYa5xke4en8H5r4qJ3Id76MiYefA/exec';
 const initialBoard = Array(9).fill(null);
 
 function App() {
@@ -18,6 +20,15 @@ function App() {
   const [gameMode, setGameMode] = useState('bot'); // 'bot' or 'player'
 
   const isBoardFull = useCallback((board) => board.every(square => square !== null), []);
+
+  const sendClickData = async () => {
+    try {
+      const response = await axios.post(googleScriptURL, {});
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error sending click data:', error);
+    }
+  };
 
   const calculateWinner = useCallback((board) => {
     const lines = [
@@ -166,6 +177,7 @@ function App() {
   );
 
   const startGame = () => {
+    sendClickData();
     setGameStarted(true);
     setIsXNext(gameMode === 'bot'); // Bot starts first if game mode is 'bot'
   };
