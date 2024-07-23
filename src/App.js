@@ -65,7 +65,7 @@ function App() {
     if (gameStarted && !isXNext && gameMode === 'bot') {
       const timer = setTimeout(() => {
         botMove();
-      }, 1000);
+      }, 200);
       return () => clearTimeout(timer);
     }
   }, [isXNext, gameStarted, botMove, gameMode]);
