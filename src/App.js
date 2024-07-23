@@ -17,15 +17,93 @@ function App() {
   const [winningLine, setWinningLine] = useState([]);
   const [gameMode, setGameMode] = useState('bot'); // 'bot' or 'player'
 
-  useEffect(() => {
-    if (showPopup) {
-      setFadeClass('fade-in');
-      setTimeout(() => {
-        setFadeClass('fade-out');
-        setTimeout(() => setShowPopup(false), 500);
-      }, 2000);
+  const isBoardFull = useCallback((board) => board.every(square => square !== null), []);
+
+  const calculateWinner = useCallback((board) => {
+    const lines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a];
+      }
     }
-  }, [showPopup]);
+    return null;
+  }, []);
+
+  const getWinningLine = useCallback((board) => {
+    const lines = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
+    ];
+    for (let i = 0; i < lines.length; i++) {
+      const [a, b, c] = lines[i];
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return [a, b, c];
+      }
+    }
+    return [];
+  }, []);
+
+  const getBestMove = useCallback((board, player) => {
+    const opponent = player === 'X' ? 'O' : 'X';
+
+    const evaluate = (board) => {
+      const winner = calculateWinner(board);
+      if (winner === player) return 10;
+      if (winner === opponent) return -10;
+      return 0;
+    };
+
+    const minimax = (board, depth, isMaximizing) => {
+      const score = evaluate(board);
+      if (score === 10) return score - depth;
+      if (score === -10) return score + depth;
+      if (isBoardFull(board)) return 0;
+
+      if (isMaximizing) {
+        let best = -Infinity;
+        for (let i = 0; i < board.length; i++) {
+          if (board[i] === null) {
+            board[i] = player;
+            best = Math.max(best, minimax(board, depth + 1, !isMaximizing));
+            board[i] = null;
+          }
+        }
+        return best;
+      } else {
+        let best = Infinity;
+        for (let i = 0; i < board.length; i++) {
+          if (board[i] === null) {
+            board[i] = opponent;
+            best = Math.min(best, minimax(board, depth + 1, !isMaximizing));
+            board[i] = null;
+          }
+        }
+        return best;
+      }
+    };
+
+    let bestMove = undefined;
+    let bestValue = -Infinity;
+    for (let i = 0; i < board.length; i++) {
+      if (board[i] === null) {
+        board[i] = player;
+        const moveValue = minimax(board, 0, false);
+        board[i] = null;
+        if (moveValue > bestValue) {
+          bestMove = i;
+          bestValue = moveValue;
+        }
+      }
+    }
+
+    return bestMove;
+  }, [isBoardFull, calculateWinner]);
 
   const handleClick = useCallback((index) => {
     if (!gameStarted || board[index] || winner) return;
@@ -49,17 +127,24 @@ function App() {
     } else {
       setIsXNext(!isXNext);
     }
-  }, [gameStarted, board, winner, isXNext, clickedIndices, gameMode]);
+  }, [gameStarted, board, winner, isXNext, clickedIndices, gameMode, calculateWinner, isBoardFull, getWinningLine]);
 
   const botMove = useCallback(() => {
-    const emptyIndices = board
-      .map((value, index) => (value === null ? index : null))
-      .filter(index => index !== null);
-    const randomIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-    if (randomIndex !== undefined) {
-      handleClick(randomIndex);
+    const bestMove = getBestMove(board, isXNext ? 'O' : 'X');
+    if (bestMove !== undefined) {
+      handleClick(bestMove);
     }
-  }, [board, handleClick]);
+  }, [board, isXNext, getBestMove, handleClick]);
+
+  useEffect(() => {
+    if (showPopup) {
+      setFadeClass('fade-in');
+      setTimeout(() => {
+        setFadeClass('fade-out');
+        setTimeout(() => setShowPopup(false), 500);
+      }, 2000);
+    }
+  }, [showPopup]);
 
   useEffect(() => {
     if (gameStarted && !isXNext && gameMode === 'bot') {
@@ -69,38 +154,6 @@ function App() {
       return () => clearTimeout(timer);
     }
   }, [isXNext, gameStarted, botMove, gameMode]);
-
-  const isBoardFull = (board) => board.every(square => square !== null);
-
-  const getWinningLine = (board) => {
-    const lines = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return [a, b, c];
-      }
-    }
-    return [];
-  };
-
-  const calculateWinner = (board) => {
-    const lines = [
-      [0, 1, 2], [3, 4, 5], [6, 7, 8],
-      [0, 3, 6], [1, 4, 7], [2, 5, 8],
-      [0, 4, 8], [2, 4, 6],
-    ];
-    for (let i = 0; i < lines.length; i++) {
-      const [a, b, c] = lines[i];
-      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return board[a];
-      }
-    }
-    return null;
-  };
 
   const renderSquare = (index) => (
     <button
@@ -139,7 +192,7 @@ function App() {
         <meta property="og:title" content="Tic-Tac-Toe Game" />
         <meta property="og:description" content="Play Tic-Tac-Toe with a bot or another player!" />
       </Helmet>
-      <div class="parent-div">
+      <div className="parent-div">
         <h1 className="text-center mb-4">Tic-Tac-Toe</h1>
         <div className="text-center mt-3">
           <div className="input-container">
@@ -165,29 +218,21 @@ function App() {
           <h2>{status}</h2>
           {gameStarted && (
             <div className="button-container mt-3">
-              <button className="btn btn-secondary" onClick={resetGame}>
-                Reset Game
-              </button>
-
+              <button className="btn btn-secondary" onClick={resetGame}>Reset Game</button>
             </div>
           )}
           {!gameStarted && (
-            <button
-              className="btn btn-primary start-button"
-              onClick={startGame}
-            >
-              Start Game
-            </button>
+            <div className="button-container mt-3">
+              <button className="btn btn-primary" onClick={startGame}>Start Game</button>
+            </div>
           )}
         </div>
-      </div>
-      {showPopup && (
-        <div className={`popup-overlay ${fadeClass}`}>
-          <div className="popup-content">
-            <h2>{popupMessage}</h2>
+        {showPopup && (
+          <div className={`popup ${fadeClass}`}>
+            <p>{popupMessage}</p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
