@@ -158,23 +158,22 @@ function App() {
 
   const getBestMoveHard = useCallback((board, player) => {
     const opponent = player === 'X' ? 'O' : 'X';
-
     const evaluate = (board) => {
       const winner = calculateWinner(board);
       if (winner === player) return 10;
       if (winner === opponent) return -10;
       return 0;
     };
-
+  
     const isBoardFull = (board) => board.every(square => square !== null);
-
+  
     const alphaBeta = (board, depth, alpha, beta, isMaximizing) => {
       const key = board.toString();
       if (transpositionTable.has(key)) return transpositionTable.get(key);
-
+  
       const score = evaluate(board);
-      if (score === 10 || score === -10 || isBoardFull(board)) return score - depth; // Depth penalty
-
+      if (score === 10 || score === -10 || isBoardFull(board)) return score;
+  
       if (isMaximizing) {
         let best = -Infinity;
         for (let i = 0; i < board.length; i++) {
@@ -203,24 +202,8 @@ function App() {
         return best;
       }
     };
-
-    // Check for immediate win or block
-    for (let i = 0; i < board.length; i++) {
-      if (board[i] === null) {
-        board[i] = player;
-        if (evaluate(board) === 10) return i;
-        board[i] = null;
-      }
-    }
-    for (let i = 0; i < board.length; i++) {
-      if (board[i] === null) {
-        board[i] = opponent;
-        if (evaluate(board) === -10) return i;
-        board[i] = null;
-      }
-    }
-
-    let bestMoves = [];
+  
+    let bestMove = undefined;
     let bestValue = -Infinity;
     for (let i = 0; i < board.length; i++) {
       if (board[i] === null) {
@@ -228,20 +211,25 @@ function App() {
         const moveValue = alphaBeta(board, 0, -Infinity, Infinity, false);
         board[i] = null;
         if (moveValue > bestValue) {
-          bestMoves = [i];
+          bestMove = i;
           bestValue = moveValue;
-        } else if (moveValue === bestValue) {
-          bestMoves.push(i);
         }
       }
     }
-
-    // Randomly pick among the best moves
-    return bestMoves[Math.floor(Math.random() * bestMoves.length)];
+    console.log(bestMove)
+    // Fallback if no best move found
+    return bestMove !== undefined ? bestMove : getFallbackMove();
+  
+    function getFallbackMove() {
+      // For example, return a random available move
+      const availableMoves = board.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+      return availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    }
   }, [calculateWinner, transpositionTable]);
-
+  
   const botMove = useCallback(() => {
     let bestMove;
+    console.log(difficulty)
     if (difficulty === 'noob') {
       bestMove = getRandomMove(board);
     } else if (difficulty === 'medium') {
@@ -347,8 +335,8 @@ function App() {
 
                   <Dropdown.Menu>
                     <Dropdown.Item onClick={() => setDifficulty('noob')}>Noob</Dropdown.Item>
-                    <Dropdown.Item onClick={() => setDifficulty('medium')}>Medium</Dropdown.Item>
-                    {/* <Dropdown.Item onClick={() => setDifficulty('hard')}>Hard</Dropdown.Item> */}
+                    <Dropdown.Item onClick={() => setDifficulty('hard')}>Medium</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setDifficulty('medium')}>Hard</Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>
               </div>
