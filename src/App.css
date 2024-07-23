@@ -1,111 +1,247 @@
-/* Background style for the whole page */
+html, body {
+  height: 100%; /* Full height for the viewport */
+  margin: 0;    /* Remove default margin */
+  padding: 0;   /* Remove default padding */
+  box-sizing: border-box; /* Ensure border and padding are included in the total height */
+}
+
+/* Apply the background image to the body */
 body {
-  background-color: #f8f9fa; /* Light grey background color */
+  background-image: url('geo-pattern.jpg'); /* Path to the background image */
+  background-size: cover; /* Ensure the image covers the entire body */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent image tiling */
+  background-color: #f5f5f5; /* Fallback color in case the image doesn't load */
 }
 
-/* Container for player name input fields */
-.input-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Center content vertically */
-  height: 100%; /* Take full height of the column */
+
+/* Optional: Apply a background color to the main content wrapper */
+.main-wrapper {
+  background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white background for contrast */
+  border-radius: 15px; /* Rounded corners */
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+  max-width: 800px; /* Limit the width */
+  margin: auto; /* Center the wrapper */
 }
 
-/* Style for input fields */
-.input-container input {
-  margin-bottom: 1rem; /* Space between input fields */
+/* Container styling */
+.container {
+  background-color: #f0f8ff; /* Light blue background */
+  border-radius: 10px; /* Rounded corners */
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow */
 }
 
-/* Game board layout */
+/* Header styling */
+h1 {
+  color: #ff6347; /* Tomato color */
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Fun font */
+  font-size: 2rem; /* Size for desktop */
+  text-align: center;
+}
+
+/* Select menu styling */
+.select-menu {
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Fun font */
+  border: 2px solid #ff6347; /* Tomato border */
+  border-radius: 8px;
+  background-color: #fff;
+  color: #ff6347;
+  font-size: 1rem; /* Size for desktop */
+}
+
+/* Game board styling */
 .game-board {
   display: grid;
-  grid-template-columns: repeat(3, 100px); /* Fixed width for columns */
-  grid-template-rows: repeat(3, 100px); /* Fixed height for rows */
-  gap: 2px; /* 2px gap between tiles */
+  grid-template-columns: repeat(3, 100px); /* Fixed width for desktop */
+  grid-template-rows: repeat(3, 100px); /* Fixed height for desktop */
+  gap: 5px; /* Increase gap for better spacing */
   margin: 0 auto;
-  max-width: 308px; /* Adjusted to account for gaps */
+  max-width: 320px; /* Adjusted width */
 }
 
 /* Square styles */
 .square {
-  width: 100px; /* Fixed width */
-  height: 100px; /* Fixed height */
+  width: 100px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  background-color: #f8f9fa; /* Light background */
-  border: 1px solid #ddd;
+  font-size: 2rem;
+  background-color: #fff;
+  border: 2px solid #ff6347; /* Tomato border */
+  border-radius: 10px; /* Rounded corners */
   cursor: pointer;
-  transition: background-color 0.2s ease; /* Smooth transition for background color change */
-  box-sizing: border-box; /* Ensure border is included in the size */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow */
 }
 
-/* Remove hover effect colors */
 .square:hover {
-  background-color: #f8f9fa !important; /* Ensure no change on hover */
-  color: inherit !important; /* Ensure text color does not change */
+  background-color: #ffebcd; /* Blanched Almond background on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
-/* Styles for selected squares */
+/* Disabled hover effect */
+.game-board.disabled .square:hover {
+  background-color: #fff; /* No hover effect */
+  transform: none; /* No transformation */
+}
+
 .square.selected {
-  background-color: #f8f9fa; /* Background color for selected squares */
-  color: inherit; /* Ensure text color remains */
+  background-color: #d1ecf1; /* Light blue for selected */
 }
 
-/* Highlight winning squares with breathing effect */
 .square.winning {
-  animation: breathe 1.5s infinite; /* Breathing animation */
+  background-color: #d4edda; /* Light green for winning line */
+  border-color: #28a745; /* Darker green border */
 }
 
-/* Keyframes for breathing effect */
-@keyframes breathe {
-  0% {
-    background-color: #d4edda; /* Light green background */
-  }
-  50% {
-    background-color: #c3e6cb; /* Slightly darker green */
-  }
-  100% {
-    background-color: #d4edda; /* Light green background */
-  }
-}
-
-/* Styles for blurred game board */
-.game-board.blur {
-  filter: blur(5px); /* Apply blur effect */
-  pointer-events: none; /* Prevent interaction with the game board */
-}
-
-/* Popup styles */
+/* Popup overlay styling */
 .popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000; /* Ensure popup appears above other content */
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out; /* Transition for fade-in and fade-out effects */
-}
-
-.popup-overlay.fade-in {
-  opacity: 1;
-}
-
-.popup-overlay.fade-out {
-  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Darker overlay for better contrast */
 }
 
 .popup-content {
-  background: white;
+  background-color: #fff;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Deeper shadow */
   text-align: center;
-  font-size: 24px;
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Fun font */
+  color: #ff6347; /* Tomato color */
+}
+
+/* Fade-in and fade-out animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Button container styles */
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Space between buttons */
+}
+
+/* Start button styles */
+.start-button {
+  background-color: #ff6347; /* Tomato color */
+  color: white;
+  padding: 15px 30px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+  font-size: 1.2rem;
+}
+
+.start-button:hover {
+  background-color: #e55347; /* Darker shade on hover */
+  transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+/* Reset button styles */
+.btn-secondary {
+  background-color: #f39c12; /* Sunflower color */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
+}
+
+.btn-secondary:hover {
+  background-color: #e67e22; /* Darker shade on hover */
+  transform: scale(1.1); /* Slightly enlarge on hover */
+}
+
+/* Status text */
+h2 {
+  color: #28a745; /* Green color for status */
+  font-family: 'Comic Sans MS', cursive, sans-serif; /* Fun font */
+  font-size: 1.5rem;
+}
+
+
+/* Mobile Portrait View Styles */
+@media only screen and (orientation: portrait) {
+  .container {
+    /* Remove specific styles you want to avoid on mobile portrait */
+    background-color: transparent; /* Make background transparent */
+    border-radius: 0; /* Remove rounded corners */
+    padding: 0; /* Remove padding */
+    box-shadow: none; /* Remove shadow */
+    /* You can add additional styles here to adjust the layout for mobile */
+  }
+  .text-center.mb-4 {
+    /* Add a whitish background color */
+    background-color: rgba(255, 255, 255, 0.8);  /* White with 80% opacity */
+
+    /* Optional: Add some padding for better separation */
+    padding: 1rem 2rem;
+
+    /* Optional: Add a subtle border for visual distinction */
+    border: 1px solid rgba(200, 200, 200, 0.5);  /* Light gray border */
+
+    /* Ensure the background covers the entire content area */
+    background-size: cover;
+    background-position: center;
+  }
+}
+
+/* Mobile Landscape View Styles */
+@media only screen and (orientation: landscape) {
+  .container {
+    flex-direction: column; /* Change layout to vertical for mobile landscape */
+    align-items: flex-start; /* Align elements to the left */
+    padding: 20px; /* Increase padding for better spacing */
+  }
+
+  h1 {
+    font-family: 'Lobster', cursive; /* Fun font for title */
+    font-size: 2.5rem; /* Larger font size for mobile landscape */
+    text-align: left; /* Align title to the left */
+    margin: 0; /* Remove margin for better alignment */
+  }
+
+  /* Adjust styles for other elements as needed for mobile landscape layout */
+  .select-menu,
+  .game-board,
+  .button-container,
+  h2,
+  .popup-overlay {
+    /* Apply styles for single-line layout */
+    width: 100%; /* Take up full width */
+    margin: 10px 0; /* Add spacing between elements */
+  }
+
+  .game-board {
+    /* Adjust grid layout for single-line display */
+    grid-template-columns: repeat(3, 1fr); /* Use fractional units for responsive layout */
+    grid-template-rows: repeat(1, auto); /* Single row */
+  }
+
+  .button-container {
+    justify-content: flex-end; /* Align buttons to the right */
+  }
+
+  .popup-overlay {
+    /* Adjust popup position for smaller screens */
+    top: 50%; /* Center vertically */
+    transform: translateY(-50%); /* Offset vertically */
+  }
+}
+
+.parent-div {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
 }

@@ -7,53 +7,49 @@ const initialBoard = Array(9).fill(null);
 
 function App() {
   const [board, setBoard] = useState(initialBoard);
-  const [isXNext, setIsXNext] = useState(true); // Bot starts first
+  const [isXNext, setIsXNext] = useState(true);
   const [winner, setWinner] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
   const [fadeClass, setFadeClass] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
-  const [playerName, setPlayerName] = useState('Player 1');
   const [clickedIndices, setClickedIndices] = useState(new Set());
-  const [winningLine, setWinningLine] = useState([]); // Track the winning line
+  const [winningLine, setWinningLine] = useState([]);
+  const [gameMode, setGameMode] = useState('bot'); // 'bot' or 'player'
 
   useEffect(() => {
     if (showPopup) {
       setFadeClass('fade-in');
       setTimeout(() => {
-        setTimeout(() => {
-          setFadeClass('fade-out');
-        }, 2000); // Hide popup after 5 seconds
-        setTimeout(() => setShowPopup(false), 2500); // Hide popup after fade-out duration
-      }, 100); // Delay for fade-in effect
+        setFadeClass('fade-out');
+        setTimeout(() => setShowPopup(false), 500);
+      }, 2000);
     }
   }, [showPopup]);
 
-  // Define handleClick and wrap it in useCallback
   const handleClick = useCallback((index) => {
     if (!gameStarted || board[index] || winner) return;
     const newBoard = board.slice();
     newBoard[index] = isXNext ? 'X' : 'O';
     setBoard(newBoard);
-    setClickedIndices(new Set(clickedIndices.add(index))); // Mark the square as clicked
+    setClickedIndices(new Set(clickedIndices.add(index)));
 
     const currentWinner = calculateWinner(newBoard);
-
     if (currentWinner) {
-      const winLine = getWinningLine(newBoard); // Get the winning line
-      setWinningLine(winLine); // Set the winning line
+      const winLine = getWinningLine(newBoard);
+      setWinningLine(winLine);
       setWinner(currentWinner);
-      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? playerName : 'Bot'}! 🎉`);
+      setPopupMessage(`🎉 Congratulations ${currentWinner === 'X' ? 'Player 1' : (gameMode === 'bot' ? 'Bot' : 'Player 2')}! 🎉`);
       setShowPopup(true);
-      setFadeClass(''); // Reset fade class for new popup
+      setFadeClass('');
     } else if (isBoardFull(newBoard)) {
       setPopupMessage('🌟 It\'s a Draw! 🌟');
       setShowPopup(true);
-      setFadeClass(''); // Reset fade class for new popup
+      setFadeClass('');
     } else {
       setIsXNext(!isXNext);
     }
-  }, [gameStarted, board, winner, isXNext, clickedIndices, playerName]);
+  }, [gameStarted, board, winner, isXNext, clickedIndices, gameMode]);
 
   const botMove = useCallback(() => {
     const emptyIndices = board
@@ -63,31 +59,24 @@ function App() {
     if (randomIndex !== undefined) {
       handleClick(randomIndex);
     }
-  }, [board, handleClick]); // Include handleClick in dependencies
+  }, [board, handleClick]);
 
   useEffect(() => {
-    if (gameStarted && !isXNext) {
+    if (gameStarted && !isXNext && gameMode === 'bot') {
       const timer = setTimeout(() => {
         botMove();
-      }, 1000); // Delay for bot move
+      }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [isXNext, gameStarted, botMove]);
+  }, [isXNext, gameStarted, botMove, gameMode]);
 
-  const isBoardFull = (board) => {
-    return board.every(square => square !== null);
-  };
+  const isBoardFull = (board) => board.every(square => square !== null);
 
   const getWinningLine = (board) => {
     const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
     ];
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
@@ -100,14 +89,9 @@ function App() {
 
   const calculateWinner = (board) => {
     const lines = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
     ];
     for (let i = 0; i < lines.length; i++) {
       const [a, b, c] = lines[i];
@@ -130,67 +114,72 @@ function App() {
 
   const startGame = () => {
     setGameStarted(true);
-    setIsXNext(false); // Bot starts first
+    setIsXNext(gameMode === 'bot'); // Bot starts first if game mode is 'bot'
   };
 
   const resetGame = () => {
     setBoard(initialBoard);
-    setIsXNext(false);
+    setIsXNext(true);
     setWinner(null);
     setShowPopup(false);
     setGameStarted(false);
-    setClickedIndices(new Set()); // Reset clicked indices
-    setWinningLine([]); // Clear the winning line
+    setClickedIndices(new Set());
+    setWinningLine([]);
   };
 
   const status = winner
-    ? `Winner: ${winner === 'X' ? 'Bot' : playerName}`
-    : `Next player: ${isXNext ? playerName : 'Bot'}`;
+    ? `Winner: ${winner === 'X' ? 'Player 1' : (gameMode === 'bot' ? 'Bot' : 'Player 2')}`
+    : ``;
 
   return (
     <div className="container mt-5">
       <Helmet>
         <title>Tic-Tac-Toe Game</title>
-        <meta name="description" content="Play Tic-Tac-Toe with a bot in this classic game!" />
+        <meta name="description" content="Play Tic-Tac-Toe with a bot or another player!" />
         <meta property="og:title" content="Tic-Tac-Toe Game" />
-        <meta property="og:description" content="Play Tic-Tac-Toe with a bot in this classic game!" />
+        <meta property="og:description" content="Play Tic-Tac-Toe with a bot or another player!" />
       </Helmet>
-      <h1 className="text-center mb-4">Tic-Tac-Toe</h1>
-      <div className="row justify-content-center mb-4">
-        <div className="col-md-3">
+      <div class="parent-div">
+        <h1 className="text-center mb-4">Tic-Tac-Toe</h1>
+        <div className="text-center mt-3">
           <div className="input-container">
-            <input
-              type="text"
+            <select
               className="form-control mb-2"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-            />
+              value={gameMode}
+              onChange={(e) => setGameMode(e.target.value)}
+              disabled={gameStarted}
+            >
+              <option value="bot">Play with Bot</option>
+              <option value="player">Play with Another Player</option>
+            </select>
           </div>
         </div>
-        <div className="col-md-6 text-center">
+        <div className="text-center mt-3">
           <div className="text-center position-relative">
-            <div className={`game-board ${!gameStarted ? 'blur' : ''}`}>
+            <div className={`game-board ${!gameStarted ? 'disabled' : ''} ${!gameStarted ? 'blur' : ''}`}>
               {board.map((_, index) => renderSquare(index))}
             </div>
-            {!gameStarted && (
-              <button
-                className="btn btn-primary start-button position-absolute top-50 start-50 translate-middle"
-                style={{ zIndex: 1 }}
-                onClick={startGame}
-              >
-                Start Game
-              </button>
-            )}
           </div>
         </div>
-      </div>
-      <div className="text-center mt-3">
-        <h2>{status}</h2>
-        {gameStarted && (
-          <button className="btn btn-secondary mt-3" onClick={resetGame}>
-            Reset Game
-          </button>
-        )}
+        <div className="text-center mt-3">
+          <h2>{status}</h2>
+          {gameStarted && (
+            <div className="button-container mt-3">
+              <button className="btn btn-secondary" onClick={resetGame}>
+                Reset Game
+              </button>
+
+            </div>
+          )}
+          {!gameStarted && (
+            <button
+              className="btn btn-primary start-button"
+              onClick={startGame}
+            >
+              Start Game
+            </button>
+          )}
+        </div>
       </div>
       {showPopup && (
         <div className={`popup-overlay ${fadeClass}`}>
